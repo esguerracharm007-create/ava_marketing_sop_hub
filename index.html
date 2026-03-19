@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AVA SOP Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#7C5CBF;--purple-light:#9B7DD4;--purple-xlight:#EDE8F8;--purple-mid:#F4F0FD;
+  --teal:#1A9E82;--teal-light:#E3F5F0;
+  --amber:#C97B1A;--amber-light:#FEF3E2;
+  --red:#C0392B;--red-light:#FDECEA;
+  --gray-900:#1C1C2E;--gray-800:#2D2D42;--gray-700:#4A4A63;
+  --gray-500:#7B7B96;--gray-300:#C8C8D8;--gray-200:#EBEBF3;--gray-100:#F5F5FA;--gray-50:#FAFAFD;
+  --white:#FFFFFF;
+  --text:#1C1C2E;--text-mid:#4A4A63;--text-muted:#7B7B96;
+  --border:#DDD9F0;--border-light:#EBEBF3;
+  --radius:8px;--radius-lg:12px;--radius-xl:16px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-100);color:var(--text);font-size:14px;line-height:1.65;display:flex;min-height:100vh}
+
+/* SIDEBAR */
+#sidebar{position:fixed;top:0;left:0;width:230px;height:100vh;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.logo-wrap{padding:18px 16px 14px;border-bottom:1px solid var(--border-light)}
+.logo-row{display:flex;align-items:center;gap:8px}
+.logo-icon{width:30px;height:30px;background:var(--purple);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0}
+.logo-name{font-size:15px;font-weight:700;color:var(--gray-900)}
+.logo-tag{font-size:10px;color:var(--text-muted);margin-top:2px;letter-spacing:.5px}
+.version-chip{display:inline-block;background:var(--purple-xlight);color:var(--purple);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-top:8px}
+.nav-group{padding:8px 0 4px}
+.nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);padding:4px 16px 2px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;cursor:pointer;font-size:12.5px;color:var(--text-mid);border-left:3px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--purple-mid);color:var(--purple)}
+.nav-item.active{background:var(--purple-xlight);color:var(--purple);border-left-color:var(--purple);font-weight:600}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:var(--gray-300);flex-shrink:0;transition:background .15s}
+.nav-item.active .nav-dot,.nav-item:hover .nav-dot{background:var(--purple)}
+
+/* MAIN */
+#main{margin-left:230px;padding:28px 32px;max-width:840px;width:100%}
+
+/* PAGE HEADER */
+.page-hd{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-xl);padding:24px 28px;margin-bottom:24px;position:relative;overflow:hidden}
+.page-hd::before{content:'';position:absolute;top:-30px;right:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,var(--purple-xlight) 0%,transparent 70%);pointer-events:none}
+.hd-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--purple-light);margin-bottom:4px}
+.hd-title{font-size:22px;font-weight:700;color:var(--gray-900);line-height:1.2}
+.hd-sub{font-size:13px;color:var(--text-muted);margin-top:4px}
+.hd-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.hd-pill{background:var(--gray-100);border:1px solid var(--border-light);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--text-mid)}
+.hd-pill span{color:var(--purple);font-weight:600}
+
+/* BANNERS */
+.banner{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:var(--radius);margin-bottom:20px;font-size:13px}
+.ban-info{background:var(--purple-xlight);border:1px solid #C8BAF0;color:var(--purple)}
+.ban-warn{background:var(--amber-light);border:1px solid #F5D7A0;color:#7A4800}
+.ban-danger{background:var(--red-light);border:1px solid #F5C6C2;color:var(--red)}
+.ban-teal{background:var(--teal-light);border:1px solid #A0DDD2;color:#0D6653}
+.ban-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* SECTION HEADING */
+.sec-hd{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border-light)}
+
+/* ACCORDION */
+.acc{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden}
+.acc-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;gap:12px;transition:background .15s}
+.acc-hd:hover{background:var(--gray-50)}
+.acc.open>.acc-hd{background:var(--purple-mid);border-bottom:1px solid var(--border)}
+.acc-title{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;color:var(--gray-900)}
+.acc-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ic-p{background:var(--purple-xlight)}
+.ic-t{background:var(--teal-light)}
+.ic-a{background:var(--amber-light)}
+.ic-g{background:var(--gray-200)}
+.ic-r{background:var(--red-light)}
+.acc-right{display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
+.b-act{background:var(--teal-light);color:var(--teal);border:1px solid #A0DDD2}
+.b-new{background:var(--purple-xlight);color:var(--purple);border:1px solid #C8BAF0}
+.b-warn{background:var(--amber-light);color:var(--amber);border:1px solid #F5D7A0}
+.b-off{background:var(--red-light);color:var(--red);border:1px solid #F5C6C2}
+.chev{color:var(--text-muted);font-size:11px;transition:transform .2s}
+.acc.open .chev{transform:rotate(90deg)}
+.acc-body{display:none;padding:18px 20px}
+.acc.open .acc-body{display:block}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.step{display:flex;gap:12px;align-items:flex-start}
+.snum{min-width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.sc{flex:1}
+.sl{font-size:12.5px;font-weight:600;color:var(--gray-900);margin-bottom:4px}
+.sd{font-size:12.5px;color:var(--text-mid)}
+
+/* RULE BOXES */
+.rule{border-radius:var(--radius);padding:10px 14px;font-size:12.5px;margin:10px 0;display:flex;gap:8px;align-items:flex-start}
+.ri{flex-shrink:0;font-size:13px;margin-top:1px}
+.r-p{background:var(--purple-xlight);border-left:3px solid var(--purple);color:var(--gray-800)}
+.r-a{background:var(--amber-light);border-left:3px solid var(--amber);color:#5C3A00}
+.r-t{background:var(--teal-light);border-left:3px solid var(--teal);color:#0D5040}
+.r-r{background:var(--red-light);border-left:3px solid var(--red);color:#7A0000}
+
+/* LISTS */
+.lst{list-style:none}
+.lst li{padding:5px 0 5px 16px;position:relative;font-size:12.5px;color:var(--text-mid);border-bottom:1px solid var(--border-light)}
+.lst li:last-child{border-bottom:none}
+.lst li::before{content:'›';position:absolute;left:3px;color:var(--purple-light)}
+.lst li strong{color:var(--gray-900)}
+
+/* KV */
+.kv{display:grid;grid-template-columns:140px 1fr;gap:5px 12px;font-size:12.5px;background:var(--gray-50);border:1px solid var(--border-light);border-radius:var(--radius);padding:12px 14px}
+.kk{color:var(--text-muted);font-weight:500}
+.kv-v{color:var(--text)}
+.kv-v strong{color:var(--purple)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.tbl th{background:var(--gray-100);color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border-light);color:var(--text-mid);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--gray-50)}
+.tbl td strong{color:var(--gray-900)}
+
+/* CHECKLIST */
+.chk{list-style:none}
+.chk li{display:flex;gap:8px;padding:5px 0;font-size:12.5px;color:var(--text-mid);border-bottom:1px solid var(--border-light)}
+.chk li:last-child{border-bottom:none}
+.chk-b{width:15px;height:15px;border:1.5px solid var(--gray-300);border-radius:3px;flex-shrink:0;margin-top:2px}
+
+/* TWO COL */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.icard{background:var(--gray-50);border:1px solid var(--border-light);border-radius:var(--radius);padding:12px 14px}
+.icard .il{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:6px}
+.icard .iv{font-size:13px;color:var(--gray-900);font-weight:600}
+.icard .is{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+
+/* RATE ROWS */
+.rr{display:flex;border-radius:var(--radius);overflow:hidden;margin-bottom:6px;border:1px solid var(--border-light)}
+.rt{background:var(--gray-100);padding:8px 12px;width:38%;font-size:12px;font-weight:600;color:var(--gray-900)}
+.rv{background:var(--white);padding:8px 12px;font-size:12px;color:var(--text-mid);flex:1}
+.rn{background:var(--gray-50);padding:8px 12px;font-size:11px;color:var(--text-muted);width:25%}
+
+/* TOOLS */
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:10px}
+.tool{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px}
+.tn{font-size:12px;font-weight:600;color:var(--gray-900);margin-bottom:2px}
+.tu{font-size:11px;color:var(--text-muted)}
+
+/* ESCALATION */
+.er{display:flex;border-radius:var(--radius);overflow:hidden;margin-bottom:7px;border:1px solid var(--border-light)}
+.es{background:var(--purple-mid);padding:9px 12px;width:40%;font-size:12px;font-weight:500;color:var(--gray-800);border-right:1px solid var(--border)}
+.ea{background:var(--white);padding:9px 12px;font-size:12px;color:var(--text-mid)}
+
+.div{height:1px;background:var(--border-light);margin:14px 0}
+.section{display:none}.section.active{display:block}
+.footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border-light);display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-row"><div class="logo-icon">AVA</div><div><div class="logo-name">AVA Team</div><div class="logo-tag">Marketing SOP Hub</div></div></div>
+    <div class="version-chip">v2.0 · March 2026</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">General</div>
+    <div class="nav-item active" onclick="show('universal',this)"><span class="nav-dot"></span>Universal Protocols</div>
+    <div class="nav-item" onclick="show('tools',this)"><span class="nav-dot"></span>Tools & Escalation</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Kinetic Real Estate</div>
+    <div class="nav-item" onclick="show('bryan',this)"><span class="nav-dot"></span>Bryan Cruz</div>
+    <div class="nav-item" onclick="show('kevin',this)"><span class="nav-dot"></span>Kevin Cruz</div>
+    <div class="nav-item" onclick="show('rayfiona',this)"><span class="nav-dot"></span>Ray Guardado & Fiona Santos</div>
+    <div class="nav-item" onclick="show('leo',this)"><span class="nav-dot"></span>Leo Team</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Leo Morales</div>
+    <div class="nav-item" onclick="show('hometours',this)"><span class="nav-dot"></span>Home Tours</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">NSP</div>
+    <div class="nav-item" onclick="show('nsp',this)"><span class="nav-dot"></span>NSP General</div>
+    <div class="nav-item" onclick="show('nspsocial',this)"><span class="nav-dot"></span>NSP Social Media</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">New Clients</div>
+    <div class="nav-item" onclick="show('chris',this)"><span class="nav-dot"></span>Chris Yanguas</div>
+    <div class="nav-item" onclick="show('joey',this)"><span class="nav-dot"></span>Joey Boy Colo</div>
+  </div>
+</div>
+
+<div id="main">
+
+<!-- UNIVERSAL -->
+<div id="sec-universal" class="section active">
+  <div class="page-hd">
+    <div class="hd-label">Foundation</div>
+    <div class="hd-title">Universal Daily Protocols</div>
+    <div class="hd-sub">Applies to every client channel, every shift, without exception.</div>
+    <div class="hd-pills">
+      <div class="hd-pill">Clients: <span>9 Total</span></div>
+      <div class="hd-pill">Active: <span>8</span></div>
+      <div class="hd-pill">Last Updated: <span>March 2026</span></div>
+    </div>
+  </div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">🌅</div>Daily Check-In & Sign-Off</div>
+      <div class="acc-right"><span class="badge b-act">Required Daily</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="two" style="margin-bottom:14px">
+        <div class="icard"><div class="il">Morning Check-In</div><div class="iv">Start of Shift</div><div class="is">Tag client + POC by name. Offer tailored service menu.</div></div>
+        <div class="icard"><div class="il">Sign-Off</div><div class="iv">End of Shift</div><div class="is">"The AVA team is signing off, see you tomorrow." Tag all active contacts.</div></div>
+      </div>
+      <div class="rule r-p"><span class="ri">ℹ️</span><div>If tasks are still in progress at sign-off, post a quick status update <strong>before</strong> signing off. Never leave a client wondering where their task stands.</div></div>
+      <div class="rule r-a"><span class="ri">🕐</span><div><strong>Coverage Hours —</strong> Summit Clients: 8 AM–8 PM · Starting & Scaling: 8 AM–5 PM · Both: Monday–Sunday</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">⚙️</div>Task Tracker Protocol</div>
+      <div class="acc-right"><span class="badge b-act">Required</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="lst">
+        <li>Use the <strong>Marketing Task Tracker bot</strong> to assign every task before starting work</li>
+        <li>VA must click <strong>"Continue"</strong> in the bot to confirm acceptance — this is the official task start</li>
+        <li>If a task changes scope mid-execution, re-assign through the tracker. No untracked ad-hoc work.</li>
+        <li>Label tasks with: client name · task type (Reel / Carousel / Call / Admin / EVA) · due date or urgency</li>
+        <li>Two-VA tasks must each accept separately in the tracker</li>
+      </ul>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-a">📊</div>KPI Reports & Meeting Cadence</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="kv" style="margin-bottom:12px">
+        <div class="kk">KPI Frequency</div><div class="kv-v">Bi-weekly or monthly (per client agreement)</div>
+        <div class="kk">Delivered by</div><div class="kv-v">Kat Arcede / Account Manager</div>
+        <div class="kk">Meeting link</div><div class="kv-v">Send in channel 5–10 min before call time</div>
+        <div class="kk">No-show protocol</div><div class="kv-v">Wait 10 min → send message offering reschedule same day</div>
+        <div class="kk">After every call</div><div class="kv-v">Post action item summary in channel before end of shift</div>
+      </div>
+      <div class="rule r-p"><span class="ri">💡</span><div><strong>Best Practice:</strong> Send a Friday weekly summary every week — tasks completed, in-progress, and planned for next week.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-a">💳</div>Credit Monitoring</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="lst">
+        <li>Track and report credit usage per client every month</li>
+        <li>Notify proactively when a client hits <strong>75% of their monthly credits</strong></li>
+        <li>Format: <em>"You have used X/Y credits this month (Z remaining)."</em></li>
+        <li>If credits fully exceeded: pause non-essential tasks immediately and flag to Kat Arcede</li>
+        <li>Never produce additional deliverables after credit limit without explicit client confirmation</li>
+      </ul>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">✅</div>Approval & Turnaround SLAs</div>
+      <div class="acc-right"><span class="badge b-new">Standardized</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <table class="tbl">
+        <tr><th>Deliverable</th><th>Target Turnaround</th><th>If No Response</th></tr>
+        <tr><td><strong>Property Reel</strong></td><td>24–72 hrs from raw upload</td><td>Follow up once at 48 hrs</td></tr>
+        <tr><td><strong>Carousel / Graphic</strong></td><td>Same shift</td><td>Follow up once next morning</td></tr>
+        <tr><td><strong>Email Blast / Newsletter</strong></td><td>2–4 hrs from request</td><td>Notify account manager</td></tr>
+        <tr><td><strong>EVA / Admin task</strong></td><td>Within 2 hrs during shift</td><td>Confirm scope with client</td></tr>
+        <tr><td><strong>Contract follow-up (NSP)</strong></td><td>Every 1–2 business days</td><td>Log attempt, retry next day</td></tr>
+        <tr><td><strong>End-of-day outbound report</strong></td><td>End of each shift</td><td>—</td></tr>
+      </table>
+      <div class="rule r-r" style="margin-top:12px"><span class="ri">🚫</span><div><strong>48-hour rule:</strong> If a client hasn't responded after 48 hrs and two follow-ups, escalate to account manager. Never post without approval.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-g">🔔</div>Team Offsite / Absence Coverage</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="lst">
+        <li>Notify all active client channels at least <strong>3 days in advance</strong> of any planned team offsite or reduced coverage</li>
+        <li>Message format: "Just a heads up — our team will be offline on [date]. Please flag urgent tasks before then."</li>
+        <li>Designate a backup VA for urgent requests during the absence</li>
+        <li>If limited coverage only, flag which hours are affected</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLS & ESCALATION -->
+<div id="sec-tools" class="section">
+  <div class="page-hd">
+    <div class="hd-label">Reference</div>
+    <div class="hd-title">Tools, Platforms & Escalation Matrix</div>
+    <div class="hd-sub">Shared infrastructure across all clients and service lines.</div>
+  </div>
+  <div class="sec-hd">Tools & Platforms</div>
+  <div class="tools">
+    <div class="tool"><div class="tn">Google Drive</div><div class="tu">Raw files, deliverables, all clients</div></div>
+    <div class="tool"><div class="tn">Slack</div><div class="tu">Comms, approvals, task coordination</div></div>
+    <div class="tool"><div class="tn">Social Pilot</div><div class="tu">Content scheduling — NSP</div></div>
+    <div class="tool"><div class="tn">ActivePipe</div><div class="tu">Email blasts & newsletters — Ray/Fiona</div></div>
+    <div class="tool"><div class="tn">Follow Up Boss</div><div class="tu">CRM & lead management — Leo Team</div></div>
+    <div class="tool"><div class="tn">Senior Placement</div><div class="tu">Community CRM — NSP</div></div>
+    <div class="tool"><div class="tn">DocuSign</div><div class="tu">Contract execution — NSP</div></div>
+    <div class="tool"><div class="tn">Canva</div><div class="tu">Graphic design, all clients</div></div>
+    <div class="tool"><div class="tn">MLS</div><div class="tu">Property search, comps — RE clients</div></div>
+    <div class="tool"><div class="tn">Zoom / G-Meet</div><div class="tu">Sync calls, all clients</div></div>
+    <div class="tool"><div class="tn">Task Tracker Bot</div><div class="tu">VA task assignments, all clients</div></div>
+    <div class="tool"><div class="tn">TikTok Studio</div><div class="tu">Native video upload — Leo/Home Tours</div></div>
+  </div>
+  <div class="sec-hd">Escalation Matrix</div>
+  <div class="er"><div class="es">Subscription expired</div><div class="ea">Pause all services immediately. Notify client in Slack. Kat Arcede to advise on path forward.</div></div>
+  <div class="er"><div class="es">Credits exceeded</div><div class="ea">Notify client with usage breakdown. Pause non-essential tasks. Wait for confirmation to continue.</div></div>
+  <div class="er"><div class="es">No approval after 48 hrs</div><div class="ea">Follow up once. Still no reply → flag to account manager. Never post without explicit approval.</div></div>
+  <div class="er"><div class="es">Credentials needed</div><div class="ea">Request directly from client in Slack. Never use shared passwords without explicit authorization.</div></div>
+  <div class="er"><div class="es">Platform flags content</div><div class="ea">Pause that content format. Report to client. Adjust format before resuming.</div></div>
+  <div class="er"><div class="es">Contract declined (NSP)</div><div class="ea">Log as "Declined" with reason in CRM. Do not re-contact that community for 30 days.</div></div>
+  <div class="er"><div class="es">Urgent senior placement</div><div class="ea">Deprioritize all other tasks. Update Anita/Rona every 2 hours until placement is secured.</div></div>
+  <div class="er"><div class="es">Task dropped / missed</div><div class="ea">Acknowledge promptly. Provide ETA and deliver. Log root cause for team review.</div></div>
+</div>
+
+<!-- BRYAN CRUZ -->
+<div id="sec-bryan" class="section">
+  <div class="page-hd">
+    <div class="hd-label">Kinetic Real Estate</div>
+    <div class="hd-title">Bryan Cruz</div>
+    <div class="hd-sub">Instagram Reels · TikTok · Carousels · Property Tours · Educational Videos · Flyers · Brand Logo</div>
+    <div class="hd-pills">
+      <div class="hd-pill">POC: <span>Rey Jonathan Ancheta</span></div>
+      <div class="hd-pill">Meeting: <span>Tuesdays (recurring)</span></div>
+      <div class="hd-pill">Posting Goal: <span>3x/week minimum</span></div>
+      <div class="hd-pill">VA Turnaround: <span>24–72 hrs</span></div>
+    </div>
+  </div>
+  <div class="banner ban-info"><span class="ban-icon">ℹ️</span><div>Channel includes 3 contacts: <strong>Bryan Cruz</strong> (client), <strong>Rey Jonathan Ancheta</strong> (POC / team manager), <strong>Jesse Tantoy</strong>. Tag all three in morning check-ins and sign-offs.</div></div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">🎬</div>Property Tour & Educational Video Workflow</div>
+      <div class="acc-right"><span class="badge b-act">Core Process</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="sc"><div class="sl">Raw Video Intake</div><div class="sd">Client uploads to Google Drive: <em>Bryan's Drive → Property Tours → [Address] → Raw</em>. VA confirms receipt in Slack same day and assigns via Task Tracker.</div></div></div>
+        <div class="step"><div class="snum">2</div><div class="sc"><div class="sl">Editing Rules (Non-Negotiable)</div><div class="sd">• Max duration: <strong>2:59</strong> — IG won't push videos over 3 min to non-followers<br>• Feature most attractive spaces in the <strong>first 15 seconds</strong><br>• Remove unrelated B-rolls (e.g., irrelevant garage shots)<br>• <strong>Do not show the actual property address on screen</strong> — use the neighborhood name (e.g., "Westlake, Daly City")<br>• Educational videos: trim for conciseness but keep key informational content</div></div></div>
+        <div class="step"><div class="snum">3</div><div class="sc"><div class="sl">File Organization</div><div class="sd">Save in: <em>[Address] → Edited</em> subfolder. Include: edited video + thumbnail. Keep both raw and edited versions.</div></div></div>
+        <div class="step"><div class="snum">4</div><div class="sc"><div class="sl">Draft Submission</div><div class="sd">Share Google Drive link in Slack. Tag Rey and Bryan. Include property address in the message. If trimming needed, ask: "Which sections are okay to cut?"</div></div></div>
+        <div class="step"><div class="snum">5</div><div class="sc"><div class="sl">Post Approval</div><div class="sd">Only post after explicit approval. Post per content calendar. If no response in 48 hrs, follow up once, then escalate.</div></div></div>
+      </div>
+      <div class="rule r-r"><span class="ri">🚫</span><div><strong>Critical:</strong> Instagram will NOT push videos over 3:00 to non-followers. Always edit to 2:59 max — confirmed from client experience.</div></div>
+      <div class="rule r-a"><span class="ri">⚠️</span><div><strong>Privacy rule:</strong> Never display the full property address on screen. Use the neighborhood instead (e.g., "Westlake, Daly City"). Flagged on the 146 Westlawn video.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">🖼️</div>Carousel Posts</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="lst">
+        <li>Use the VA-maintained <strong>carousel topic suggestions Google Doc</strong> — share with client to highlight preferred topics before creating</li>
+        <li>Design to be catchy and impactful — client wants bold, high-energy visuals</li>
+        <li>Create one version for Bryan's IG and one for Rey's IG when dual-posting is requested</li>
+        <li>Share for approval in Slack before posting — tag both Bryan and Rey</li>
+      </ul>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-a">🎨</div>Flyers & Brand Logo</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="rule r-p"><span class="ri">🏷️</span><div><strong>Active project — Daly City Homes brand logo:</strong> Daly City logo base → change "California" to "Homes" → background image of the featured home → keep "Gateway to the Peninsula" tagline.</div></div>
+      <ul class="lst" style="margin-top:10px">
+        <li>Create both solo (Bryan only) and team (Bryan + Rey) flyer versions when requested</li>
+        <li>Always deliver: final flyer + source file. Share for approval before printing or posting.</li>
+        <li>For sponsorship events, confirm all assets are ready 48 hrs before the event date</li>
+      </ul>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-g">📅</div>Content Schedule & Meeting</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="kv">
+        <div class="kk">Posting goal</div><div class="kv-v"><strong>Minimum 3 posts/week</strong> (combination of reels + carousels)</div>
+        <div class="kk">Video turnaround</div><div class="kv-v"><strong>24–72 hrs</strong> from raw upload to edited draft — client-confirmed SLA</div>
+        <div class="kk">Weekly meeting</div><div class="kv-v"><strong>Tuesdays (recurring)</strong> — Google Meet. Link sent 5–10 min before.</div>
+        <div class="kk">Content calendar</div><div class="kv-v">Shared with Rey/Bryan so they can see what's planned and in progress</div>
+        <div class="kk">Candid reel guide</div><div class="kv-v">PDF exists — bump periodically as a reference for Bryan's self-filmed content</div>
+        <div class="kk">Shoot guide</div><div class="kv-v">PDF for filming raw property tours — share when new footage is upcoming</div>
+      </div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">💡</div>Process Improvements</div>
+      <div class="acc-right"><span class="badge b-new">Recommended</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="chk">
+        <li><div class="chk-b"></div>Weekly content calendar sent to client every Monday</li>
+        <li><div class="chk-b"></div>Property content brief template — address, key features, filming date, target audience</li>
+        <li><div class="chk-b"></div>Monthly performance report — top 3 reels by views, saves, and shares</li>
+        <li><div class="chk-b"></div>Standardized file naming: <em>[Date]-[Address]-[Type]-[Draft/Final].mp4</em></li>
+        <li><div class="chk-b"></div>TikTok cross-posting — repurpose best-performing IG reels to TikTok</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- KEVIN CRUZ -->
+<div id="sec-kevin" class="section">
+  <div class="page-hd">
+    <div class="hd-label">Kinetic Real Estate</div>
+    <div class="hd-title">Kevin Cruz</div>
+    <div class="hd-sub">EVA Support · Personal Branding · Foundation Website · Social Media · Lead Management</div>
+    <div class="hd-pills">
+      <div class="hd-pill">POC: <span>Kevin Cruz (direct)</span></div>
+      <div class="hd-pill">KPI: <span>Bi-weekly</span></div>
+      <div class="hd-pill">Sync: <span>As needed</span></div>
+    </div>
+  </div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">🤝</div>EVA Support & Lead Management</div>
+      <div class="acc-right"><span class="badge b-act">Core Process</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="lst">
+        <li>Manage daily scheduling, calendar entries, and meeting invites</li>
+        <li>Handle email follow-ups on Kevin's behalf — reply within 2 hrs during shift</li>
+        <li>Screen and triage inbound inquiries before escalating to Kevin</li>
+        <li><strong>Always cross-reference the CRM</strong> before adding any new lead — do not work on contacts already marked as closed in Homelight</li>
+        <li>Log leads immediately: name, phone, email, source, budget, area, notes</li>
+        <li>Categorize by source: Homelight, Instagram, direct referral</li>
+      </ul>
+      <div class="rule r-r"><span class="ri">🚫</span><div><strong>Known issue:</strong> Team was previously following up on Homelight leads already marked as "closed." Always verify CRM status before any outreach.</div></div>
+      <div class="div"></div>
+      <div class="sec-hd" style="margin-top:0">Foundation Website</div>
+      <ul class="lst">
+        <li>Active ongoing project — track all outstanding tasks in a dedicated punch list (owner + deadline per item)</li>
+        <li>Provide a progress update to Kevin at every morning check-in until the site launches</li>
+        <li>Assign one dedicated web team member — avoid handoffs without documentation</li>
+      </ul>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">💡</div>Process Improvements</div>
+      <div class="acc-right"><span class="badge b-new">Recommended</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="chk">
+        <li><div class="chk-b"></div>Website punch list in Google Sheets — tasks, owner, status, deadline</li>
+        <li><div class="chk-b"></div>Lead Source Tracker — spreadsheet: source, date added, status, last contact</li>
+        <li><div class="chk-b"></div>Monthly content theme — e.g., "April = First-Time Buyer tips"</li>
+        <li><div class="chk-b"></div>Standard email reply templates for 3 most common lead inquiry types</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- RAY & FIONA -->
+<div id="sec-rayfiona" class="section">
+  <div class="page-hd">
+    <div class="hd-label">Kinetic Real Estate</div>
+    <div class="hd-title">Ray Guardado & Fiona Santos</div>
+    <div class="hd-sub">Instagram Reels · Carousels · Email Newsletters · Email Blasts · High Volume Listings</div>
+    <div class="hd-pills">
+      <div class="hd-pill">Newsletter: <span>Every Wednesday</span></div>
+      <div class="hd-pill">Off-market email: <span>Every Friday 12 PM+</span></div>
+      <div class="hd-pill">Preferred post days: <span>Mon / Wed / Fri</span></div>
+    </div>
+  </div>
+  <div class="banner ban-info"><span class="ban-icon">ℹ️</span><div><strong>Two agents, two brands.</strong> Ray Guardado and Fiona Santos have separate signature blocks, captions, and branding. Always confirm which agent's listing before creating content. Never mix branding.</div></div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">🏠</div>New Listing Reel Workflow</div>
+      <div class="acc-right"><span class="badge b-act">Core Process</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="sc"><div class="sl">Listing Intake</div><div class="sd">Client posts "New folder: [Address]" in Slack with: address, voiceover script, Zillow/MLS link, key features. Confirm receipt + assign via Task Tracker. Ask for prepared graphics/captions if not included.</div></div></div>
+        <div class="step"><div class="snum">2</div><div class="sc"><div class="sl">Video Editing</div><div class="sd">Edit using voiceover script for text overlays and pacing. Use MLS photos for additional B-roll. Create a custom branded thumbnail per agent.</div></div></div>
+        <div class="step"><div class="snum">3</div><div class="sc"><div class="sl">Caption Structure</div><div class="sd"><strong>Hook:</strong> "Comment 'Home' to get the listing details!"<br><strong>Price:</strong> List price<br><strong>Highlights:</strong> 5–6 bullet points with emoji (🏡 ✨ 🍴 🛏 🚗 🌳)<br><strong>Signature:</strong> Correct agent block — Ray or Fiona, never mix<br><strong>Hashtags:</strong> Area-specific from hashtag library</div></div></div>
+        <div class="step"><div class="snum">4</div><div class="sc"><div class="sl">Approval & Posting</div><div class="sd">Tag the correct agent in Slack for approval. Wait for explicit "Approved" before scheduling. Post per content calendar and confirm in Slack once live.</div></div></div>
+      </div>
+      <div class="rule r-a"><span class="ri">⚠️</span><div>Posts are time-sensitive. If client says "post ASAP" or "before 1 PM," prioritize immediately and notify if deadline cannot be met.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">📧</div>Email & Newsletter Protocols</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <table class="tbl">
+        <tr><th>Task</th><th>Frequency</th><th>Platform</th><th>Notes</th></tr>
+        <tr><td><strong>Ray's Newsletter</strong></td><td>Every Wednesday</td><td>ActivePipe</td><td>Client forwards template. Confirm weekly before sending.</td></tr>
+        <tr><td><strong>Off-Market Email</strong></td><td>Every Friday after 12 PM</td><td>ActivePipe</td><td>Fiona confirms exclusion list each week</td></tr>
+        <tr><td><strong>New Listing Blast</strong></td><td>On request</td><td>ActivePipe</td><td>Confirm if Open House dates should be included</td></tr>
+        <tr><td><strong>Open House Carousel</strong></td><td>On request</td><td>Instagram</td><td>Include all OH dates + times in the post</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">💡</div>Process Improvements</div>
+      <div class="acc-right"><span class="badge b-new">Recommended</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="chk">
+        <li><div class="chk-b"></div>Pre-built caption templates by listing type: condo / SFH / townhome / fixer-upper</li>
+        <li><div class="chk-b"></div>Pending Review tracker — no listing unacknowledged for more than 4 hours</li>
+        <li><div class="chk-b"></div>Monthly engagement report: top 3 reels by views, saves, and leads generated</li>
+        <li><div class="chk-b"></div>Listing intake form — standard form per listing: address, script, highlights, agent</li>
+        <li><div class="chk-b"></div>Master hashtag bank organized by city/neighborhood — updated monthly</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- LEO TEAM -->
+<div id="sec-leo" class="section">
+  <div class="page-hd">
+    <div class="hd-label">Kinetic Real Estate</div>
+    <div class="hd-title">Leo Team — Jacky, Nick, Joji</div>
+    <div class="hd-sub">FUB CRM · Lead Management · Admin Support · Scripts · Flyers · Social Media · Reviews</div>
+    <div class="hd-pills">
+      <div class="hd-pill">CRM: <span>Follow Up Boss (FUB)</span></div>
+      <div class="hd-pill">Sync: <span>Mondays 6 PM PST</span></div>
+      <div class="hd-pill">Newsletter: <span>Weekly (Mondays)</span></div>
+    </div>
+  </div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">👥</div>Lead Management (FUB)</div>
+      <div class="acc-right"><span class="badge b-act">Core Process</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="rule r-p"><span class="ri">📋</span><div><strong>Lead intake format:</strong> Name — Phone — Email · Source (Homelight, IG, referral) | Notes: budget, preferred area, property type, conversation recap, next steps</div></div>
+      <ul class="lst" style="margin-top:10px">
+        <li><strong>Same-day entry SLA</strong> — add new leads to FUB the same day they are received</li>
+        <li><strong>Duplicate check first</strong> — verify the lead doesn't already exist before adding</li>
+        <li><strong>Do not work closed Homelight contacts</strong> — cross-reference CRM status before any outreach</li>
+        <li>Update LM Leads 2026 Sheet after every new entry</li>
+        <li>Create Smartlists in FUB by segment for targeted email campaigns</li>
+        <li>Weekly email campaign sent from FUB using Smartlists</li>
+      </ul>
+      <div class="rule r-r"><span class="ri">🚫</span><div><strong>Known pain point:</strong> Lead follow-up has been dropped multiple times — flagged by Leo. Any lead follow-up task must be confirmed with an ETA in Slack and logged in the tracker before end of shift.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">🔧</div>Admin & Real Estate Support</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <table class="tbl">
+        <tr><th>Task</th><th>Protocol</th></tr>
+        <tr><td><strong>Comps Research</strong></td><td>Pull from MLS. Deliver as clean table: address, price, beds, baths, sqft, $/sqft, DOM.</td></tr>
+        <tr><td><strong>Disclosure Requests</strong></td><td>Submit on agent's behalf. Confirm submission + expected turnaround in Slack.</td></tr>
+        <tr><td><strong>Open House Lookup</strong></td><td>Check Zillow/MLS. Confirm dates, times, and showing instructions. Respond same message.</td></tr>
+        <tr><td><strong>Showing Coordination</strong></td><td>Book homes per request. Create itinerary with addresses, times, route. Post before filming day.</td></tr>
+        <tr><td><strong>Vendor List</strong></td><td>Update in real-time when Leo drops vendor details. Maintain list accessible to all Leo channels.</td></tr>
+        <tr><td><strong>Script Writing</strong></td><td>Conversational, natural tone — no robotic AI language. Property voiceovers, realtor/lender intros.</td></tr>
+        <tr><td><strong>Review Posting</strong></td><td>Yelp/Google: post directly every 2 weeks unless AI-generated looking. Zillow: requires Leo approval + home address.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-a">📌</div>Flyer & File Standards</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="rule r-a"><span class="ri">📌</span><div><strong>Flyer address format (mandatory — two lines):</strong><br><code>123 Main St.</code><br><code>Daly City, CA 94015</code><br>This was flagged as incorrect on multiple flyers. Never use single-line format.</div></div>
+      <ul class="lst" style="margin-top:10px">
+        <li>Maintain <strong>Kinetic branding consistency</strong> across all flyers — small tweaks allowed, never redesign from scratch</li>
+        <li>File naming for Gene's uploads: always double-check folder names match the correct property address</li>
+        <li>Pending Contract posts: block the address name per client preference</li>
+        <li>Sync call: <strong>Mondays 6 PM PST</strong> — Microsoft Teams. Leo confirms recurring link.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">💡</div>Process Improvements</div>
+      <div class="acc-right"><span class="badge b-new">Recommended</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="chk">
+        <li><div class="chk-b"></div>Social Media Lead Tracker (Google Sheet) pinned in channel</li>
+        <li><div class="chk-b"></div>Pin all important links in the channel: MLS, Drive, Vendor List, Lead Tracker</li>
+        <li><div class="chk-b"></div>FUB task SOP — step-by-step guide so VAs handle lead follow-up without dropping it</li>
+        <li><div class="chk-b"></div>Standard Showing Request template to speed up property bookings</li>
+        <li><div class="chk-b"></div>Bi-weekly review posting schedule locked in the content calendar</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- HOME TOURS -->
+<div id="sec-hometours" class="section">
+  <div class="page-hd">
+    <div class="hd-label">Leo Morales</div>
+    <div class="hd-title">Home Tours</div>
+    <div class="hd-sub">TikTok (primary) · Instagram · Daily Property Reel Production · Gene Orias (Videographer)</div>
+    <div class="hd-pills">
+      <div class="hd-pill">TikTok: <span>2 posts/day</span></div>
+      <div class="hd-pill">Instagram: <span>1 post/day</span></div>
+      <div class="hd-pill">Filming: <span>Mon–Fri, up to 6 homes/day</span></div>
+    </div>
+  </div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">🎥</div>Content Production Workflow</div>
+      <div class="acc-right"><span class="badge b-act">Core Process</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="sc"><div class="sl">Filming Day Prep</div><div class="sd">VA creates filming itinerary the day before: addresses, scheduled times, route order. Start at premium/high-interest listings first. Homes going into contract soon = post first. Post itinerary in channel and confirm with Gene.</div></div></div>
+        <div class="step"><div class="snum">2</div><div class="sc"><div class="sl">Video Editing Rules</div><div class="sd">• <strong>Use TikTok Studio for all uploads</strong> — native editing prevents "For You" suppression<br>• Enable: auto beat sync, AI enhancement, native music, location tag<br>• Cover photo: natural/aesthetic, NOT overly branded<br>• No AI/robotic voiceover — silence, natural audio, or Leo's recorded voice only<br>• 48-hr SLA: filming → ready to post within 2 days</div></div></div>
+        <div class="step"><div class="snum">3</div><div class="sc"><div class="sl">Posting Cadence</div><div class="sd">TikTok: 10 AM + 6 PM daily (2 posts/day). Instagram: 10 AM or 6 PM (1 post/day). Home tours without voiceover → post on Leo's personal Instagram. Notify Leo per post: "@Leo Today's 10 AM post: [Address]"</div></div></div>
+      </div>
+      <div class="rule r-r"><span class="ri">🚫</span><div><strong>Platform issue confirmed:</strong> 13 reels were suppressed from "For You" due to third-party app uploads. Always upload natively through TikTok Studio. No exceptions.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">📊</div>Weekly Social Media Audit</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="lst">
+        <li>Conduct weekly audit of TikTok and Instagram every Thursday</li>
+        <li>Report: total views, flagged reels, For You page reach, engagement rate, leads generated</li>
+        <li>Present report in channel and discuss at weekly meeting</li>
+        <li>Archive top-performing reels — document format, length, and first-frame that worked best</li>
+        <li>Pause any flagged content format until Leo approves a revised approach</li>
+      </ul>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">💡</div>Process Improvements</div>
+      <div class="acc-right"><span class="badge b-new">Recommended</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="chk">
+        <li><div class="chk-b"></div>Content queue tracker — shows how many edited reels are ready to post</li>
+        <li><div class="chk-b"></div>Social Media Lead Tracker pinned in channel (Google Sheet)</li>
+        <li><div class="chk-b"></div>Best-performing reel archive — format, length, cover style, engagement</li>
+        <li><div class="chk-b"></div>Standardized file naming for Gene's uploads: <em>[Date]-[Address]-Raw.mp4</em></li>
+        <li><div class="chk-b"></div>Weekly TikTok analytics review: views, follower growth, bio link clicks</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- NSP GENERAL -->
+<div id="sec-nsp" class="section">
+  <div class="page-hd">
+    <div class="hd-label">NSP — Neighborly Senior Placement</div>
+    <div class="hd-title">NSP General — Outreach & Contracts</div>
+    <div class="hd-sub">Outbound Calls · Contract Management · CRM · Community Searches · Client Placements</div>
+    <div class="hd-pills">
+      <div class="hd-pill">POC: <span>Anita Varelas, Rona Graubart</span></div>
+      <div class="hd-pill">Email: <span>ava@neighborlyseniorplacement.com</span></div>
+      <div class="hd-pill">Alias: <span>Neighborly Support Team</span></div>
+    </div>
+  </div>
+  <div class="banner ban-teal"><span class="ban-icon">📧</span><div>Microsoft 365 profile updated to <strong>"Neighborly Support Team"</strong> with alias <strong>ava@neighborlyseniorplacement.com</strong>. Use this identity when communicating externally on behalf of NSP.</div></div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">📞</div>Daily Outbound Call Process</div>
+      <div class="acc-right"><span class="badge b-act">Core Process</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="sc"><div class="sl">Prepare Call List</div><div class="sd">Pull from SP CRM. Priority: (1) urgent placement searches, (2) pending contract follow-ups, (3) new community outreach by geo target.</div></div></div>
+        <div class="step"><div class="snum">2</div><div class="sc"><div class="sl">Referral Rate Standards</div><div class="sd">See rate table below. Open with standard. Negotiate down if needed. Never go below minimum.</div></div></div>
+        <div class="step"><div class="snum">3</div><div class="sc"><div class="sl">Log Every Interaction</div><div class="sd">Log every call — answered, voicemail, full mailbox, disconnected — with outcome and next action. Nothing goes unlogged.</div></div></div>
+        <div class="step"><div class="snum">4</div><div class="sc"><div class="sl">End-of-Shift Report</div><div class="sd">Post daily metrics report before signing off. Midday update required on high-volume or urgent placement days.</div></div></div>
+      </div>
+      <div class="div"></div>
+      <div class="sec-hd" style="margin-top:0">Referral Rate Standards</div>
+      <div class="rr"><div class="rt">Standard</div><div class="rv">65% Rent/Care · 40% Hospice/Respite · 30-day term</div><div class="rn">Default offer</div></div>
+      <div class="rr"><div class="rt">Large AL</div><div class="rv">85% Rent/Care · 40% Hospice/Respite · 30-day term</div><div class="rn">Large communities</div></div>
+      <div class="rr"><div class="rt">Minimum</div><div class="rv">55% — negotiate down from 65% only if needed</div><div class="rn">Floor rate</div></div>
+      <div class="rr" style="border-left:3px solid var(--red)"><div class="rt" style="color:var(--red)">Hard Decline</div><div class="rv">≤50% — do not proceed. Log and move on.</div><div class="rn">Hard stop</div></div>
+      <div class="rule r-p" style="margin-top:12px"><span class="ri">📋</span><div><strong>Daily report required fields:</strong> Outbound Calls · Inbound Calls · Contracts Sent · Contracts Signed · Wins & Progress · Pending Follow-Ups · Blockers & Declines</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-r">🚨</div>Urgent Client Placement Protocol</div>
+      <div class="acc-right"><span class="badge b-warn">Time-Critical</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="sc"><div class="sl">Read client profile fully</div><div class="sd">Budget · Room type (shared/private) · Gender · Level of care (total care, ambulatory, hospice waiver) · Special needs (language, diet, wound type, communication)</div></div></div>
+        <div class="step"><div class="snum">2</div><div class="sc"><div class="sl">Search CRM first</div><div class="sd">Check SP for active communities in the area matching all criteria before making calls.</div></div></div>
+        <div class="step"><div class="snum">3</div><div class="sc"><div class="sl">Call & Confirm</div><div class="sd">Confirm: availability, price, ability to handle care level, willingness to accept the client profile.</div></div></div>
+        <div class="step"><div class="snum">4</div><div class="sc"><div class="sl">Report Back</div><div class="sd">Post qualified shortlist in Slack: community name, pricing, availability, any conditions. Update every 2 hours until placed.</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">📄</div>Contract Workflow</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <table class="tbl">
+        <tr><th>Stage</th><th>Action Required</th></tr>
+        <tr><td><strong>Send</strong></td><td>Confirm decision-maker name + email. Send via DocuSign at agreed rate. Log as "PENDING" with date in CRM.</td></tr>
+        <tr><td><strong>Follow-up</strong></td><td>Every 1–2 business days. Document each attempt: voicemail left, spoke with staff, callback requested.</td></tr>
+        <tr><td><strong>Receive</strong></td><td>Mark as "ACTIVE" in CRM. Close pending task. Notify Anita for co-signature if required.</td></tr>
+        <tr><td><strong>Decline</strong></td><td>Log as "Declined" with reason. Do not re-contact for 30 days.</td></tr>
+        <tr><td><strong>CRM Update</strong></td><td>After every call: update community profile — pricing, availability, contact info, contract status, notes.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">💡</div>Process Improvements</div>
+      <div class="acc-right"><span class="badge b-new">Recommended</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="chk">
+        <li><div class="chk-b"></div>Weekly contract pipeline report: Sent / Pending / Signed / Declined</li>
+        <li><div class="chk-b"></div>Community status board updated weekly: Available / Full / Closing / Do Not Contact</li>
+        <li><div class="chk-b"></div>Follow-up reminder system — alerts for contracts pending more than 3 days</li>
+        <li><div class="chk-b"></div>Call scripts for 3 scenarios: new outreach, contract follow-up, urgent placement</li>
+        <li><div class="chk-b"></div>Weekly performance targets: contracts signed, new communities added, placements confirmed</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- NSP SOCIAL MEDIA -->
+<div id="sec-nspsocial" class="section">
+  <div class="page-hd">
+    <div class="hd-label">NSP — Neighborly Senior Placement</div>
+    <div class="hd-title">NSP Social Media</div>
+    <div class="hd-sub">Instagram · Facebook · Social Pilot · Tuesday Tours · Community Spotlights · CEU Promotions</div>
+    <div class="hd-pills">
+      <div class="hd-pill">Scheduler: <span>Social Pilot</span></div>
+      <div class="hd-pill">Tuesday Tours: <span>Weekly recurring</span></div>
+      <div class="hd-pill">Content calendar: <span>Rolling 2-week</span></div>
+    </div>
+  </div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">🎬</div>Tuesday Tour Video Workflow</div>
+      <div class="acc-right"><span class="badge b-act">Core Process</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="sc"><div class="sl">Footage Intake</div><div class="sd">Client uploads raw video from in-person community visit. VA confirms receipt and checks for completeness.</div></div></div>
+        <div class="step"><div class="snum">2</div><div class="sc"><div class="sl">Editing Rules (Non-Negotiable)</div><div class="sd">• <strong>No British or AI-generated voiceover</strong> — human audio or none<br>• <strong>Never say "our community"</strong> — NSP facilitates tours, does not own<br>• <strong>Never say "our advisors"</strong> — use NSP name or logo only<br>• <strong>Verify every stat from the official community website</strong> — never include unverified facts<br>• Place "Welcome [Name]" photo near the beginning<br>• Text placement: never cover signs or important visuals<br>• Use requested music tracks when specified</div></div></div>
+        <div class="step"><div class="snum">3</div><div class="sc"><div class="sl">Caption Rules</div><div class="sd">Warm, informative, professional tone. Always include a CTA. Avoid clinical language overuse — keep it human and approachable.</div></div></div>
+        <div class="step"><div class="snum">4</div><div class="sc"><div class="sl">Social Pilot Scheduling</div><div class="sd">Schedule next week's content every Friday. Share drafts for Anita/Rona approval before publishing.</div></div></div>
+      </div>
+      <div class="rule r-r"><span class="ri">🚫</span><div><strong>Fact accuracy is critical.</strong> Clients have flagged inaccurate stats in videos multiple times. Always verify from the community's official website before including any factual claim.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">📅</div>Content Calendar & Post Types</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <table class="tbl">
+        <tr><th>Content Type</th><th>Frequency</th><th>Notes</th></tr>
+        <tr><td><strong>Tuesday Tours</strong></td><td>Every Tuesday</td><td>Tour video of a featured community. Verify all info from official site.</td></tr>
+        <tr><td><strong>Community Spotlights</strong></td><td>As available</td><td>Longer-form features. Same fact-check rules apply.</td></tr>
+        <tr><td><strong>Educational Content</strong></td><td>Weekly</td><td>Dementia training, CEU promos. Include CEU credit info for nurses when applicable.</td></tr>
+        <tr><td><strong>Holiday / Awareness</strong></td><td>Per calendar</td><td>Use real NSP team photos. If posting late, copy changes to "Yesterday we celebrated…"</td></tr>
+        <tr><td><strong>Event Recaps</strong></td><td>Post-event</td><td>Alzheimer's walks, senior fairs, social worker outreach. Tag relevant organizations.</td></tr>
+      </table>
+      <div class="rule r-a" style="margin-top:10px"><span class="ri">📌</span><div><strong>Sensitive content:</strong> Posts on end-of-life services, memorial facilities, or dementia topics require extra care. Review tone before publishing. When in doubt, ask Rona/Anita first.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">💡</div>Process Improvements</div>
+      <div class="acc-right"><span class="badge b-new">Recommended</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="chk">
+        <li><div class="chk-b"></div>Community Video Template — standard intro, outro, music, branding for all tour videos</li>
+        <li><div class="chk-b"></div>Content theme calendar: Tuesday = Tour, Thursday = Educational, Friday = Event/Awareness</li>
+        <li><div class="chk-b"></div>Fact-check checklist — required for every video before editing begins</li>
+        <li><div class="chk-b"></div>Approval SLA: content to client by Thursday, approved by Friday, scheduled for following week</li>
+        <li><div class="chk-b"></div>Monthly metrics: reach, engagement, DM inquiries, profile visits from posts</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CHRIS YANGUAS -->
+<div id="sec-chris" class="section">
+  <div class="page-hd">
+    <div class="hd-label">New Client — Onboarding</div>
+    <div class="hd-title">Chris Yanguas</div>
+    <div class="hd-sub">Bay Area Fit Lender · Golden 1 Credit Union · Instagram · Google Business · Yelp</div>
+    <div class="hd-pills">
+      <div class="hd-pill">Started: <span>March 2026</span></div>
+      <div class="hd-pill">Sync: <span>Fridays (Zoom or Teams)</span></div>
+      <div class="hd-pill">POC: <span>Chris Yanguas (direct)</span></div>
+    </div>
+  </div>
+  <div class="banner ban-info"><span class="ban-icon">🚀</span><div>New client — currently in onboarding. Brand kit has been shared. Google Business and Yelp setup in progress. All content creation begins only after brand kit sign-off.</div></div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-a">🚀</div>Onboarding Workflow</div>
+      <div class="acc-right"><span class="badge b-new">New Client</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="sc"><div class="sl">Kickoff Call</div><div class="sd">Zoom or Teams call to align on brand vision, goals, platforms, and target audience. Collect: logo, headshots, colors, key services, testimonials if available.</div></div></div>
+        <div class="step"><div class="snum">2</div><div class="sc"><div class="sl">Brand Kit Creation</div><div class="sd">Develop color palette, fonts, visual style. Share in Slack for feedback. Client trusted the team on palette and font — proceed confidently but always share for review.</div></div></div>
+        <div class="step"><div class="snum">3</div><div class="sc"><div class="sl">Profile Setup</div><div class="sd">Google Business (Gmail: FitLenderChris@gmail.com — credentials provided in channel). Yelp: create or claim and fully optimize. Set up Google Drive folder for raw uploads.</div></div></div>
+        <div class="step"><div class="snum">4</div><div class="sc"><div class="sl">Content Production Begins</div><div class="sd">Start content calendar only after brand kit approval. Content: mortgage tips, lifestyle reels, hair transplant journey, Bay Area homebuyer education.</div></div></div>
+      </div>
+      <div class="rule r-a"><span class="ri">🔐</span><div><strong>Credentials note:</strong> If Google login requires 2FA, request the code from Chris immediately in Slack. Do not attempt to bypass or reuse expired codes.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">💡</div>Process Improvements</div>
+      <div class="acc-right"><span class="badge b-new">Recommended</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="chk">
+        <li><div class="chk-b"></div>30-day onboarding milestone checklist with clear ownership per task</li>
+        <li><div class="chk-b"></div>Content Brief Template for Chris to fill per post</li>
+        <li><div class="chk-b"></div>Monthly content theme (e.g., March = First-Time Homebuyer, April = Refinancing Tips)</li>
+        <li><div class="chk-b"></div>Google Business posting cadence: 1–2 posts/week minimum</li>
+        <li><div class="chk-b"></div>Yelp review strategy: request from satisfied clients + respond to all existing reviews</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- JOEY BOY COLO -->
+<div id="sec-joey" class="section">
+  <div class="page-hd">
+    <div class="hd-label">New Client</div>
+    <div class="hd-title">Joey Boy Colo</div>
+    <div class="hd-sub">Vale & Vine · Real Estate Agent · Instagram · TikTok · MLS Support · Listing Presentations</div>
+    <div class="hd-pills">
+      <div class="hd-pill">Primary Brand: <span>Vale & Vine</span></div>
+      <div class="hd-pill">Started: <span>March 2026</span></div>
+      <div class="hd-pill">VA: <span>Portia Anne</span></div>
+    </div>
+  </div>
+  <div class="acc open">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-p">🎬</div>Brand Reel & Content Production</div>
+      <div class="acc-right"><span class="badge b-act">Core Process</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="lst">
+        <li><strong>Raw video via WeTransfer only</strong> — preserves quality. Never receive video through Slack direct message. Google Drive link also acceptable.</li>
+        <li>Brand reel = highest-priority content deliverable for this account. Treat as flagship output.</li>
+        <li>When Joey describes a creative vision, schedule a quick 15-min call to align before spending time on edits</li>
+        <li>Caption style: story-driven and emotional — equity-building narratives, lifestyle storytelling</li>
+        <li>Vale & Vine branding must be consistent across all content — colors, fonts, tone</li>
+      </ul>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">🏠</div>Showing Coordination & MLS Support</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="sc"><div class="sl">Receive Request</div><div class="sd">Joey sends Zillow links with preferred showing times. Confirm the full list before calling.</div></div></div>
+        <div class="step"><div class="snum">2</div><div class="sc"><div class="sl">Call Listing Agents</div><div class="sd">Book each showing at the requested time. Confirm: Supra lockbox or combination lockbox? If combo, get the code. If Supra, confirm it's on the door.</div></div></div>
+        <div class="step"><div class="snum">3</div><div class="sc"><div class="sl">Relay to Joey</div><div class="sd">Post confirmed showings in Slack immediately: address, confirmed time, access method, special instructions.</div></div></div>
+      </div>
+      <div class="rule r-a"><span class="ri">⚠️</span><div><strong>MLS session expires frequently.</strong> Always request a fresh code from Joey when the session has expired. Do not attempt workarounds.</div></div>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-a">📧</div>Email Signatures & Listing Presentations</div>
+      <div class="acc-right"><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="lst">
+        <li>Vale & Vine work email signature already created — use as master template for all other accounts</li>
+        <li>Confirm which email accounts need updating when signature changes are requested</li>
+        <li>Listing presentations: Joey shares via Canva (use Joey's account). Edit to add client testimonials.</li>
+        <li>Export final presentation and share for Joey's review before distributing to clients</li>
+        <li>Maintain versioned archive of listing presentations in Drive</li>
+      </ul>
+    </div>
+  </div>
+  <div class="acc">
+    <div class="acc-hd" onclick="tog(this)">
+      <div class="acc-title"><div class="acc-icon ic-t">💡</div>Process Improvements</div>
+      <div class="acc-right"><span class="badge b-new">Recommended</span><span class="chev">›</span></div>
+    </div>
+    <div class="acc-body">
+      <ul class="chk">
+        <li><div class="chk-b"></div>Joey Brand Guide — Vale & Vine colors, fonts, tone, do's and don'ts</li>
+        <li><div class="chk-b"></div>Testimonial Bank — Google Doc collecting all client reviews for content reuse</li>
+        <li><div class="chk-b"></div>Standard Showing Coordination Script for booking properties efficiently</li>
+        <li><div class="chk-b"></div>WeTransfer → Drive workflow documentation for the team</li>
+        <li><div class="chk-b"></div>Content calendar — plan 2 weeks of reels/posts in advance once brand reel is finalized</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>AVA Marketing SOP Hub · v2.0 · March 2026</span>
+  <span>Built from full Slack channel audit · Review quarterly</span>
+</div>
+</div>
+
+<script>
+function show(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function tog(hd) {
+  hd.parentElement.classList.toggle('open');
+}
+</script>
+</body>
+</html>
